@@ -1,1 +1,163 @@
-
+{
+  "emergency_contacts": [
+    {
+      "resource_id": "EMG-001",
+      "name": "National Mental Health Helpline",
+      "contact_number": "1800-123-456",
+      "available_hours": "24/7",
+      "services": ["Crisis support", "Immediate counseling", "Resource referral"],
+      "languages": ["English", "Hindi", "Multiple regional languages"],
+      "confidential": true,
+      "cost": "Free"
+    },
+    {
+      "resource_id": "EMG-002", 
+      "name": "Workplace Crisis Support",
+      "contact_number": "1800-789-012",
+      "available_hours": "24/7",
+      "services": ["Work-related stress", "Burnout support", "Manager consultations"],
+      "languages": ["English", "Hindi"],
+      "confidential": true,
+      "cost": "Company sponsored"
+    },
+    {
+      "resource_id": "EMG-003",
+      "name": "Suicide Prevention Helpline",
+      "contact_number": "1800-345-678",
+      "available_hours": "24/7",
+      "services": ["Suicide prevention", "Crisis intervention", "Follow-up support"],
+      "languages": ["English", "Hindi", "Multiple Indian languages"],
+      "confidential": true,
+      "cost": "Free"
+    }
+  ],
+  "self_help_tools": [
+    {
+      "tool_id": "SH-001",
+      "name": "5-Minute Breathing Exercise",
+      "duration": "5 minutes",
+      "benefit": "Instant stress relief and calm",
+      "instructions": [
+        "Sit comfortably with straight back",
+        "Inhale slowly through nose for 4 seconds",
+        "Hold breath for 7 seconds", 
+        "Exhale slowly through mouth for 8 seconds",
+        "Repeat 4-5 times"
+      ],
+      "best_for": ["Immediate anxiety relief", "Pre-meeting calm", "Focus improvement"]
+    },
+    {
+      "tool_id": "SH-002",
+      "name": "Progressive Muscle Relaxation",
+      "duration": "10 minutes",
+      "benefit": "Reduces physical tension and stress",
+      "instructions": [
+        "Start with feet - tense muscles for 5 seconds then relax",
+        "Move upward to calves, thighs, abdomen",
+        "Continue to hands, arms, shoulders",
+        "Finish with face and neck muscles",
+        "Focus on difference between tense and relaxed states"
+      ],
+      "best_for": ["Physical tension", "Sleep preparation", "Body awareness"]
+    },
+    {
+      "tool_id": "SH-003",
+      "name": "Mindful Desk Stretches",
+      "duration": "3 minutes",
+      "benefit": "Relieves desk-related physical strain",
+      "instructions": [
+        "Neck rolls: Slowly roll head in circles both directions",
+        "Shoulder shrugs: Lift shoulders to ears, hold, release",
+        "Wrist stretches: Gently pull fingers back toward forearm",
+        "Spinal twist: Sit tall, twist torso while holding chair",
+        "Stand and reach: Stand up, reach arms high toward ceiling"
+      ],
+      "best_for": ["Desk fatigue", "Posture correction", "Quick energy boost"]
+    }
+  ],
+  "digital_resources": [
+    {
+      "resource_id": "DIG-001",
+      "name": "Calm App",
+      "type": "Mobile Application",
+      "description": "Meditation and sleep stories app",
+      "features": ["Guided meditations", "Sleep stories", "Breathing exercises", "Music tracks"],
+      "cost": "Freemium",
+      "platforms": ["iOS", "Android", "Web"],
+      "rating": 4.8
+    },
+    {
+      "resource_id": "DIG-002",
+      "name": "Headspace",
+      "type": "Mobile Application", 
+      "description": "Mindfulness and meditation training",
+      "features": ["Daily meditations", "Mindfulness courses", "SOS exercises", "Sleep content"],
+      "cost": "Subscription",
+      "platforms": ["iOS", "Android", "Web"],
+      "rating": 4.7
+    },
+    {
+      "resource_id": "DIG-003",
+      "name": "MyGov Wellness",
+      "type": "Government Portal",
+      "description": "Official Indian government wellness resources",
+      "features": ["Yoga tutorials", "Ayurvedic tips", "Mental health guides", "Fitness plans"],
+      "cost": "Free",
+      "platforms": ["Web", "Mobile"],
+      "rating": 4.5
+    }
+  ],
+  "coping_strategies": {
+    "immediate_relief": [
+      "Step away from screen for 5 minutes",
+      "Drink cold water slowly",
+      "Practice 4-7-8 breathing technique",
+      "Listen to calming music",
+      "Use grounding technique: Name 5 things you can see, 4 you can touch, 3 you can hear, 2 you can smell, 1 you can taste"
+    ],
+    "emotional_regulation": [
+      "Journal feelings without judgment",
+      "Talk to trusted colleague or friend",
+      "Use positive self-talk affirmations",
+      "Practice gratitude by listing 3 good things",
+      "Engage in creative activity like drawing or writing"
+    ],
+    "physical_wellness": [
+      "Take walk during break time",
+      "Practice desk stretches every hour",
+      "Stay hydrated throughout day",
+      "Eat balanced meals with protein",
+      "Get adequate sleep (7-9 hours)"
+    ],
+    "social_support": [
+      "Schedule virtual coffee with teammate",
+      "Join workplace interest groups",
+      "Participate in team building activities",
+      "Share challenges with manager",
+      "Connect with mentor or coach"
+    ]
+  },
+  "crisis_management": {
+    "warning_signs": [
+      "Persistent high stress levels (8+/10)",
+      "Significant changes in sleep or appetite",
+      "Withdrawal from social interactions",
+      "Decreased productivity over extended period",
+      "Expressions of hopelessness or helplessness"
+    ],
+    "immediate_actions": [
+      "Contact emergency mental health services immediately",
+      "Stay with person until professional help arrives",
+      "Listen without judgment and offer reassurance",
+      "Remove any potential means of self-harm",
+      "Follow emergency protocol and notify appropriate contacts"
+    ],
+    "follow_up_support": [
+      "Schedule professional counseling sessions",
+      "Implement workplace accommodations",
+      "Provide ongoing check-ins and support",
+      "Connect with employee assistance program",
+      "Develop return-to-work plan if needed"
+    ]
+  }
+}

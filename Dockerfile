@@ -1,59 +1,40 @@
-from setuptools import setup, find_packages
-import os
+# Use official Python runtime as base image
+FROM python:3.9-slim
 
-# Read requirements from requirements.txt
-with open('requirements.txt') as f:
-    requirements = f.read().splitlines()
+# Set working directory in container
+WORKDIR /app
 
-# Read long description from README.md
-with open('README.md', 'r', encoding='utf-8') as f:
-    long_description = f.read()
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV STREAMLIT_SERVER_PORT=8501
+ENV FASTAPI_PORT=8000
 
-setup(
-    name="engcare",
-    version="1.0.0",
-    description="AI-Powered Engineer Wellness Platform - Mental Health & Burnout Prevention",
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    author="Sakshi Tiwari",
-    author_email="tiwarishakshi318@gmail.com",
-    url="https://github.com/Sakshi983-cmd/EngCare-AI-Wellness",
-    packages=find_packages(),
-    include_package_data=True,
-    install_requires=requirements,
-    classifiers=[
-        "Development Status :: 4 - Beta",
-        "Intended Audience :: Healthcare Industry",
-        "Intended Audience :: Information Technology",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
-        "Topic :: Scientific/Engineering :: Artificial Intelligence",
-        "Topic :: Office/Business :: Enterprise",
-        "Topic :: Utilities"
-    ],
-    keywords=[
-        "mental-health",
-        "ai",
-        "wellness", 
-        "burnout-prevention",
-        "employee-wellbeing",
-        "workplace-health",
-        "llm",
-        "streamlit"
-    ],
-    python_requires=">=3.8",
-    entry_points={
-        "console_scripts": [
-            "engcare=app:main",
-        ],
-    },
-    project_urls={
-        "Bug Reports": "https://github.com/Sakshi983-cmd/EngCare-AI-Wellness/issues",
-        "Source": "https://github.com/Sakshi983-cmd/EngCare-AI-Wellness",
-        "Documentation": "https://github.com/Sakshi983-cmd/EngCare-AI-Wellness#readme"
-    },
-)
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements first for better caching
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy project files to container
+COPY . .
+
+# Create necessary directories
+RUN mkdir -p logs assets/css assets/js assets/images data
+
+# Expose ports
+EXPOSE 8501  # Streamlit
+EXPOSE 8000  # FastAPI
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8501/ || exit 1
+
+# Command to run both Streamlit and FastAPI
+CMD ["sh", "-c", "streamlit run app.py --server.port=8501 --server.address=0.0.0.0 & uvicorn backend.main:app --host 0.0.0.0 --port 8000"]

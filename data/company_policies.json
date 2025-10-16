@@ -1,1 +1,104 @@
-
+{
+  "wellness_policies": [
+    {
+      "policy_id": "POL-001",
+      "policy_name": "Flexible Work Hours",
+      "category": "work_life_balance",
+      "description": "Employees can choose their work timing between 7 AM to 7 PM based on their personal productivity patterns",
+      "implementation_guide": "Use shift scheduling software, set core collaboration hours 10 AM - 4 PM",
+      "expected_impact": "Reduces commute stress, accommodates different chronotypes, improves work-life balance",
+      "implementation_cost": "low",
+      "time_to_implement": "1-2 weeks",
+      "success_metrics": ["Employee satisfaction", "Reduced late arrivals", "Better productivity during peak hours"]
+    },
+    {
+      "policy_id": "POL-002",
+      "policy_name": "Mental Health Days",
+      "category": "mental_health",
+      "description": "2 additional paid leaves specifically for mental health without requiring medical documentation",
+      "implementation_guide": "Add to HR system as 'Wellness Leave', train managers on appropriate usage",
+      "expected_impact": "Prevents burnout, reduces stigma around mental health, shows organizational care",
+      "implementation_cost": "low",
+      "time_to_implement": "1 week",
+      "success_metrics": ["Reduced sick leaves", "Lower attrition rates", "Improved employee feedback"]
+    },
+    {
+      "policy_id": "POL-003",
+      "policy_name": "Wellness Workshops",
+      "category": "preventive_care",
+      "description": "Monthly mental health, stress management, and wellness education sessions conducted by experts",
+      "implementation_guide": "Schedule quarterly, use both internal experts and external facilitators, record sessions",
+      "expected_impact": "Builds mental health awareness, teaches coping skills, creates supportive culture",
+      "implementation_cost": "medium",
+      "time_to_implement": "2-3 weeks",
+      "success_metrics": ["Workshop attendance", "Skill application surveys", "Stress level reduction"]
+    },
+    {
+      "policy_id": "POL-004",
+      "policy_name": "Quiet Rooms & Relaxation Spaces",
+      "category": "physical_environment",
+      "description": "Designated quiet spaces for meditation, power naps, or quiet breaks during work hours",
+      "implementation_guide": "Convert small meeting rooms, add comfortable seating, soundproofing, calming decor",
+      "expected_impact": "Provides immediate stress relief, improves focus, reduces sensory overload",
+      "implementation_cost": "medium",
+      "time_to_implement": "3-4 weeks",
+      "success_metrics": ["Room usage frequency", "Employee feedback", "Reduced noise complaints"]
+    },
+    {
+      "policy_id": "POL-005",
+      "policy_name": "Ergonomic Workplace Assessment",
+      "category": "physical_health",
+      "description": "Professional assessment and provision of ergonomic chairs, desks, and equipment",
+      "implementation_guide": "Hire ergonomic specialists, budget for equipment upgrades, train employees on setup",
+      "expected_impact": "Reduces physical strain, prevents musculoskeletal issues, improves comfort",
+      "implementation_cost": "high",
+      "time_to_implement": "4-6 weeks",
+      "success_metrics": ["Reduced discomfort reports", "Productivity metrics", "Equipment usage satisfaction"]
+    },
+    {
+      "policy_id": "POL-006",
+      "policy_name": "No Meeting Wednesdays",
+      "category": "focus_time",
+      "description": "Designate Wednesdays as meeting-free days to enable deep work and reduce context switching",
+      "implementation_guide": "Update company calendar policies, communicate clearly to all teams, lead by example",
+      "expected_impact": "Improves focus, reduces meeting fatigue, increases productive work time",
+      "implementation_cost": "low",
+      "time_to_implement": "1 week",
+      "success_metrics": ["Meeting hours reduction", "Project completion rates", "Employee satisfaction"]
+    },
+    {
+      "policy_id": "POL-007",
+      "policy_name": "Professional Counseling Services",
+      "category": "mental_health_support",
+      "description": "Provide access to licensed therapists and counselors through company-sponsored EAP",
+      "implementation_guide": "Partner with mental health service providers, ensure confidentiality, promote awareness",
+      "expected_impact": "Early intervention for mental health issues, professional support access, crisis prevention",
+      "implementation_cost": "high",
+      "time_to_implement": "2-3 weeks",
+      "success_metrics": ["Service utilization rates", "Confidential satisfaction surveys", "Crisis intervention cases"]
+    },
+    {
+      "policy_id": "POL-008",
+      "policy_name": "Fitness & Wellness Stipend",
+      "category": "physical_wellness",
+      "description": "Provide monthly stipend for gym memberships, fitness classes, or wellness activities",
+      "implementation_guide": "Set up reimbursement process, define eligible expenses, promote usage",
+      "expected_impact": "Encourages physical activity, reduces healthcare costs, improves energy levels",
+      "implementation_cost": "medium",
+      "time_to_implement": "2 weeks",
+      "success_metrics": ["Stipend utilization", "Fitness activity participation", "Health insurance claims"]
+    }
+  ],
+  "policy_categories": {
+    "work_life_balance": ["Flexible Work Hours", "No Meeting Wednesdays"],
+    "mental_health": ["Mental Health Days", "Professional Counseling Services"],
+    "preventive_care": ["Wellness Workshops"],
+    "physical_environment": ["Quiet Rooms & Relaxation Spaces"],
+    "physical_health": ["Ergonomic Workplace Assessment", "Fitness & Wellness Stipend"]
+  },
+  "implementation_priority": {
+    "high_impact_low_cost": ["POL-001", "POL-002", "POL-006"],
+    "medium_impact_medium_cost": ["POL-003", "POL-004", "POL-008"],
+    "high_impact_high_cost": ["POL-005", "POL-007"]
+  }
+}

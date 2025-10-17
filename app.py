@@ -1,6 +1,4 @@
 import streamlit as st
-import asyncio
-import websockets
 import json
 import pandas as pd
 import plotly.express as px
@@ -10,7 +8,6 @@ import time
 import requests
 import numpy as np
 from typing import Dict, List, Optional
-import base64
 import random
 import sys
 import os
@@ -41,14 +38,18 @@ except ImportError:
     class LLMEngine:
         def get_wellness_advice(self, problem):
             solutions = {
-                "stress": "Try the 4-7-8 breathing technique: Inhale for 4 seconds, hold for 7, exhale for 8.",
-                "burnout": "Take a complete digital detox for 2 hours. No screens, just relaxation.",
+                "stress": "Try the 4-7-8 breathing technique: Inhale for 4 seconds, hold for 7, exhale for 8. Repeat 4 times.",
+                "burnout": "Take a complete digital detox for 2 hours. No screens, just relaxation and nature.",
                 "anxiety": "Practice grounding technique: Name 5 things you can see, 4 you can touch, 3 you can hear, 2 you can smell, 1 you can taste.",
-                "focus": "Use the Pomodoro technique: 25 minutes focused work, 5 minutes break.",
-                "sleep": "Avoid screens 1 hour before bed. Try reading a physical book.",
-                "workload": "Break tasks into smaller chunks and prioritize using Eisenhower Matrix."
+                "focus": "Use the Pomodoro technique: 25 minutes focused work, 5 minutes break. Repeat 4 times then take a longer break.",
+                "sleep": "Avoid screens 1 hour before bed. Try reading a physical book and drinking herbal tea.",
+                "workload": "Break tasks into smaller chunks and prioritize using Eisenhower Matrix (Urgent/Important).",
+                "team conflicts": "Schedule a calm conversation using 'I feel' statements instead of accusations.",
+                "work-life balance": "Set clear boundaries: no work emails after 6 PM, dedicate time for hobbies.",
+                "motivation": "Start with the easiest task to build momentum. Celebrate small wins.",
+                "time management": "Use time blocking: assign specific hours for specific tasks throughout the day."
             }
-            return solutions.get(problem.lower(), "Take a short walk and practice mindfulness.")
+            return solutions.get(problem.lower(), "Take a short walk and practice mindfulness meditation.")
 
 # Custom CSS and JS loader
 def load_custom_assets():
@@ -59,24 +60,64 @@ def load_custom_assets():
     except:
         st.markdown("""
         <style>
-        .main { background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%); color: white; }
-        .glass-card { background: rgba(26,26,46,0.7); backdrop-filter: blur(20px); border-radius: 20px; padding: 20px; margin: 10px 0; }
-        .stButton button { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 10px; }
+        .main { 
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%); 
+            color: white; 
+            font-family: 'Inter', sans-serif;
+        }
+        .glass-card { 
+            background: rgba(26,26,46,0.7); 
+            backdrop-filter: blur(20px); 
+            border-radius: 20px; 
+            padding: 20px; 
+            margin: 10px 0; 
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+        }
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+        .stButton button { 
+            background: linear-gradient(135deg, #667eea, #764ba2); 
+            color: white; 
+            border: none; 
+            border-radius: 10px; 
+            padding: 10px 20px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .stButton button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .stress-meter {
+            width: 100%;
+            height: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .stress-level {
+            height: 100%;
+            border-radius: 10px;
+            transition: all 0.5s ease;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.8; }
+            100% { opacity: 1; }
+        }
         </style>
         """, unsafe_allow_html=True)
-    
-    # Load JavaScript
-    try:
-        with open('assets/js/animations.js', 'r') as f:
-            st.markdown(f'<script>{f.read()}</script>', unsafe_allow_html=True)
-    except:
-        pass
     
     # Load particles.js and confetti from CDN
     st.markdown('''
         <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-        <div id="particles-js"></div>
+        <div id="particles-js" style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:-1;"></div>
         <script>
         particlesJS('particles-js', {
             particles: {
@@ -160,28 +201,43 @@ def create_problem_solver():
         "Time Management"
     ]
     
-    selected_problem = st.selectbox("What's bothering you today?", problems)
+    selected_problem = st.selectbox("What's bothering you today?", problems, key="problem_select")
     
-    if st.button("Get AI Solution", key="solve_problem"):
-        with st.spinner("🤔 Analyzing your problem..."):
-            time.sleep(1.5)
+    # Additional context
+    context = st.text_area("Tell me more about your situation (optional):", placeholder="Describe what's happening...", key="problem_context")
+    
+    if st.button("🎯 Get AI Solution", key="solve_problem", use_container_width=True):
+        with st.spinner("🤔 Analyzing your problem and generating personalized solution..."):
+            time.sleep(2)
             solution = st.session_state.ai_engine.get_wellness_advice(selected_problem)
+            
+            # Enhanced solution with context
+            if context:
+                solution += f"\n\nBased on your situation: {context[:100]}... I recommend being patient with yourself and implementing this solution consistently."
             
             # Log the problem and solution
             st.session_state.problem_log.append({
                 'problem': selected_problem,
                 'solution': solution,
                 'timestamp': datetime.now(),
-                'stress_before': st.session_state.user_data['stress_level']
+                'stress_before': st.session_state.user_data['stress_level'],
+                'context': context
             })
             
             # Show solution in a beautiful card
             st.markdown(f"""
-            <div class="glass-card" style="border-left: 4px solid #00ff87;">
+            <div class="glass-card" style="border-left: 4px solid #00ff87; animation: fadeIn 1s ease-in;">
                 <h4>💡 AI Solution for '{selected_problem}'</h4>
-                <p style="font-size: 16px; line-height: 1.6;">{solution}</p>
-                <div style="margin-top: 15px; padding: 10px; background: rgba(0,255,135,0.1); border-radius: 10px;">
-                    <strong>🎯 Quick Action:</strong> Try this immediately for relief
+                <div style="background: rgba(0,255,135,0.1); padding: 15px; border-radius: 10px; margin: 10px 0;">
+                    <p style="font-size: 16px; line-height: 1.6; margin: 0;">{solution}</p>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <div style="flex: 1; background: rgba(102,126,234,0.1); padding: 10px; border-radius: 8px;">
+                        <strong>🎯 Quick Action:</strong> Start with the first step immediately
+                    </div>
+                    <div style="flex: 1; background: rgba(255,153,102,0.1); padding: 10px; border-radius: 8px;">
+                        <strong>⏱️ Time:</strong> 5-15 minutes daily
+                    </div>
                 </div>
             </div>
             """, unsafe_allow_html=True)
@@ -199,9 +255,15 @@ def create_problem_solver():
                 origin: { y: 0.6 }
             });
             </script>
+            <style>
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            </style>
             """, unsafe_allow_html=True)
             
-            st.success("✅ Solution applied! +25 Wellness Points")
+            st.success("✅ Solution applied! Stress reduced by 15%. +25 Wellness Points")
 
 def create_emergency_support():
     """Emergency/crisis support section"""
@@ -210,36 +272,45 @@ def create_emergency_support():
     col1, col2 = st.columns(2)
     
     with col1:
-        if st.button("🆘 Immediate Stress Relief", use_container_width=True):
+        if st.button("🆘 Immediate Stress Relief", use_container_width=True, key="emergency_help"):
             with st.spinner("Loading immediate relief techniques..."):
                 time.sleep(1)
                 st.markdown("""
-                <div class="glass-card" style="border-left: 4px solid #ff4757;">
-                    <h4>🚑 Immediate Stress Relief</h4>
-                    <ol style="line-height: 2;">
-                        <li><strong>Box Breathing:</strong> Inhale 4s → Hold 4s → Exhale 4s → Hold 4s</li>
-                        <li><strong>5-4-3-2-1 Grounding:</strong> Name 5 things you see, 4 you feel, 3 you hear, 2 you smell, 1 you taste</li>
-                        <li><strong>Cold Water:</strong> Splash cold water on your face</li>
-                        <li><strong>Walk:</strong> Take a 2-minute walk away from your desk</li>
-                    </ol>
+                <div class="glass-card" style="border-left: 4px solid #ff4757; animation: pulse 2s infinite;">
+                    <h4>🚑 Immediate Stress Relief Techniques</h4>
+                    <div style="background: rgba(255,71,87,0.1); padding: 15px; border-radius: 10px;">
+                        <ol style="line-height: 1.8; margin: 0;">
+                            <li><strong>Box Breathing:</strong> Inhale 4s → Hold 4s → Exhale 4s → Hold 4s (Repeat 4x)</li>
+                            <li><strong>5-4-3-2-1 Grounding:</strong> Name 5 things you see, 4 you feel, 3 you hear, 2 you smell, 1 you taste</li>
+                            <li><strong>Cold Water:</strong> Splash cold water on your face or hold ice cubes</li>
+                            <li><strong>2-Minute Walk:</strong> Walk away from your desk immediately</li>
+                            <li><strong>Progressive Relaxation:</strong> Tense and release muscles from toes to head</li>
+                        </ol>
+                    </div>
                 </div>
                 """, unsafe_allow_html=True)
     
     with col2:
-        if st.button("📞 Crisis Helpline", use_container_width=True):
+        if st.button("📞 Crisis Helpline", use_container_width=True, key="crisis_help"):
             st.markdown("""
-            <div class="glass-card">
-                <h4>📞 Professional Support</h4>
-                <p><strong>National Mental Health Helpline:</strong> 1-800-662-HELP</p>
-                <p><strong>Crisis Text Line:</strong> Text HOME to 741741</p>
-                <p><strong>Emergency:</strong> 911 or your local emergency number</p>
-                <p><em>You're not alone. Professional help is available 24/7.</em></p>
+            <div class="glass-card" style="border-left: 4px solid #667eea;">
+                <h4>📞 Professional Support Resources</h4>
+                <div style="background: rgba(102,126,234,0.1); padding: 15px; border-radius: 10px;">
+                    <p><strong>🇺🇸 National Mental Health Helpline:</strong> 1-800-662-HELP (4357)</p>
+                    <p><strong>💬 Crisis Text Line:</strong> Text HOME to 741741</p>
+                    <p><strong>🎯 Suicide & Crisis Lifeline:</strong> Dial 988</p>
+                    <p><strong>🚑 Emergency Services:</strong> 911 or your local emergency number</p>
+                    <p style="margin-top: 10px; font-style: italic; color: #ccc;">
+                    You're not alone. Professional help is available 24/7. Reach out anytime.
+                    </p>
+                </div>
             </div>
             """, unsafe_allow_html=True)
 
 def create_wellness_dashboard():
     """Main wellness dashboard"""
     st.title("🧠 EngCare - AI Wellness Assistant")
+    st.markdown("### Your Personal Mental Health Companion")
     
     # Real-time stress meter
     create_animated_stress_meter()
@@ -251,8 +322,8 @@ def create_wellness_dashboard():
         st.markdown(f"""
         <div class="glass-card" style="text-align: center;">
             <h3>⭐ Level</h3>
-            <h1 style="color: #667eea; margin: 0;">{st.session_state.user_data['level']}</h1>
-            <p>Wellness Warrior</p>
+            <h1 style="color: #667eea; margin: 0; font-size: 2.5em;">{st.session_state.user_data['level']}</h1>
+            <p style="color: #ccc; margin: 0;">Wellness Warrior</p>
         </div>
         """, unsafe_allow_html=True)
     
@@ -260,8 +331,8 @@ def create_wellness_dashboard():
         st.markdown(f"""
         <div class="glass-card" style="text-align: center;">
             <h3>🔥 Streak</h3>
-            <h1 style="color: #ff9966; margin: 0;">{st.session_state.user_data['streak']}</h1>
-            <p>Days Active</p>
+            <h1 style="color: #ff9966; margin: 0; font-size: 2.5em;">{st.session_state.user_data['streak']}</h1>
+            <p style="color: #ccc; margin: 0;">Days Active</p>
         </div>
         """, unsafe_allow_html=True)
     
@@ -269,19 +340,20 @@ def create_wellness_dashboard():
         st.markdown(f"""
         <div class="glass-card" style="text-align: center;">
             <h3>🏆 Points</h3>
-            <h1 style="color: #00ff87; margin: 0;">{st.session_state.user_data['wellness_points']}</h1>
-            <p>Wellness Points</p>
+            <h1 style="color: #00ff87; margin: 0; font-size: 2.5em;">{st.session_state.user_data['wellness_points']}</h1>
+            <p style="color: #ccc; margin: 0;">Wellness Points</p>
         </div>
         """, unsafe_allow_html=True)
     
     with col4:
         burnout_risk = st.session_state.user_data['burnout_risk']
         risk_color = "#00ff87" if burnout_risk < 0.3 else "#ff9966" if burnout_risk < 0.6 else "#ff4757"
+        risk_text = "Low" if burnout_risk < 0.3 else "Medium" if burnout_risk < 0.6 else "High"
         st.markdown(f"""
         <div class="glass-card" style="text-align: center;">
             <h3>🔮 Burnout Risk</h3>
-            <h1 style="color: {risk_color}; margin: 0;">{burnout_risk * 100:.0f}%</h1>
-            <p>7-Day Forecast</p>
+            <h1 style="color: {risk_color}; margin: 0; font-size: 2.5em;">{burnout_risk * 100:.0f}%</h1>
+            <p style="color: #ccc; margin: 0;">{risk_text} Risk</p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -293,21 +365,21 @@ def create_ai_recommendations():
     
     if stress_level > 0.7:
         recommendations = [
-            {"icon": "🧘", "title": "Guided Meditation", "duration": "10 min", "urgency": "high", "desc": "Calm your mind with breathing exercises"},
-            {"icon": "🚶", "title": "Nature Walk", "duration": "15 min", "urgency": "high", "desc": "Connect with nature to reduce stress"},
-            {"icon": "🎵", "title": "Calming Music", "duration": "5 min", "urgency": "medium", "desc": "Listen to relaxing sounds"}
+            {"icon": "🧘", "title": "Guided Meditation", "duration": "10 min", "urgency": "high", "desc": "Calm your mind with breathing exercises", "action": "Start Meditation"},
+            {"icon": "🚶", "title": "Nature Walk", "duration": "15 min", "urgency": "high", "desc": "Connect with nature to reduce stress", "action": "Take Walk"},
+            {"icon": "🎵", "title": "Calming Music", "duration": "5 min", "urgency": "medium", "desc": "Listen to relaxing sounds", "action": "Play Music"}
         ]
     elif stress_level > 0.4:
         recommendations = [
-            {"icon": "💪", "title": "Desk Stretches", "duration": "3 min", "urgency": "medium", "desc": "Release physical tension"},
-            {"icon": "☕", "title": "Mindful Break", "duration": "5 min", "urgency": "medium", "desc": "Step away from screen"},
-            {"icon": "📝", "title": "Journaling", "duration": "7 min", "urgency": "low", "desc": "Write down your thoughts"}
+            {"icon": "💪", "title": "Desk Stretches", "duration": "3 min", "urgency": "medium", "desc": "Release physical tension", "action": "Start Stretching"},
+            {"icon": "☕", "title": "Mindful Break", "duration": "5 min", "urgency": "medium", "desc": "Step away from screen", "action": "Take Break"},
+            {"icon": "📝", "title": "Journaling", "duration": "7 min", "urgency": "low", "desc": "Write down your thoughts", "action": "Start Journaling"}
         ]
     else:
         recommendations = [
-            {"icon": "🎯", "title": "Focus Session", "duration": "25 min", "urgency": "low", "desc": "Deep work with Pomodoro"},
-            {"icon": "🏃", "title": "Quick Exercise", "duration": "5 min", "urgency": "low", "desc": "Boost energy levels"},
-            {"icon": "📚", "title": "Learning", "duration": "15 min", "urgency": "low", "desc": "Develop new skills"}
+            {"icon": "🎯", "title": "Focus Session", "duration": "25 min", "urgency": "low", "desc": "Deep work with Pomodoro", "action": "Start Focus"},
+            {"icon": "🏃", "title": "Quick Exercise", "duration": "5 min", "urgency": "low", "desc": "Boost energy levels", "action": "Exercise Now"},
+            {"icon": "📚", "title": "Learning", "duration": "15 min", "urgency": "low", "desc": "Develop new skills", "action": "Start Learning"}
         ]
     
     for rec in recommendations:
@@ -316,7 +388,7 @@ def create_ai_recommendations():
         st.markdown(f"""
         <div class="glass-card">
             <div style="display: flex; align-items: center; gap: 15px;">
-                <div style="font-size: 2em;">{rec['icon']}</div>
+                <div style="font-size: 2.5em;">{rec['icon']}</div>
                 <div style="flex: 1;">
                     <h4 style="margin: 0;">{rec['title']}</h4>
                     <p style="margin: 5px 0; color: #ccc; font-size: 14px;">{rec['desc']}</p>
@@ -330,6 +402,10 @@ def create_ai_recommendations():
             </div>
         </div>
         """, unsafe_allow_html=True)
+        
+        if st.button(rec["action"], key=f"action_{rec['title']}", use_container_width=True):
+            st.session_state.user_data['wellness_points'] += 10
+            st.success(f"✅ {rec['title']} started! +10 points")
 
 def create_gamification_section():
     """Gamification and achievements"""
@@ -342,8 +418,8 @@ def create_gamification_section():
     
     st.markdown(f"""
     <div class="glass-card">
-        <h4>Level Progress</h4>
-        <div style="width: 100%; background: rgba(255, 255, 255, 0.1); border-radius: 10px; overflow: hidden;">
+        <h4>🚀 Level Progress</h4>
+        <div style="width: 100%; background: rgba(255, 255, 255, 0.1); border-radius: 10px; overflow: hidden; margin: 10px 0;">
             <div style="width: {progress * 100}%; background: linear-gradient(90deg, #667eea, #764ba2); height: 12px; border-radius: 10px; transition: all 0.5s ease;"></div>
         </div>
         <p style="text-align: center; margin: 10px 0; color: #ccc;">
@@ -355,10 +431,10 @@ def create_gamification_section():
     # Achievements
     st.markdown("#### 🏆 Your Achievements")
     achievements = [
-        {"name": "First Step", "earned": True, "icon": "🚶", "desc": "Completed first session"},
-        {"name": "7-Day Streak", "earned": st.session_state.user_data['streak'] >= 7, "icon": "🔥", "desc": "7 consecutive days"},
-        {"name": "Stress Master", "earned": st.session_state.user_data['stress_level'] < 0.3, "icon": "🧠", "desc": "Low stress maintained"},
-        {"name": "Problem Solver", "earned": len(st.session_state.problem_log) > 5, "icon": "💡", "desc": "5+ problems solved"},
+        {"name": "First Step", "earned": True, "icon": "🚶", "desc": "Completed first session", "points": 50},
+        {"name": "7-Day Streak", "earned": st.session_state.user_data['streak'] >= 7, "icon": "🔥", "desc": "7 consecutive days", "points": 100},
+        {"name": "Stress Master", "earned": st.session_state.user_data['stress_level'] < 0.3, "icon": "🧠", "desc": "Low stress maintained", "points": 75},
+        {"name": "Problem Solver", "earned": len(st.session_state.problem_log) > 5, "icon": "💡", "desc": "5+ problems solved", "points": 150},
     ]
     
     cols = st.columns(4)
@@ -366,10 +442,11 @@ def create_gamification_section():
         with cols[idx]:
             opacity = "1" if achievement["earned"] else "0.3"
             st.markdown(f"""
-            <div style="text-align: center; opacity: {opacity}; padding: 10px;">
+            <div style="text-align: center; opacity: {opacity}; padding: 10px; border-radius: 10px; background: rgba(255,255,255,0.05);">
                 <div style="font-size: 2.5em; margin-bottom: 5px;">{achievement['icon']}</div>
                 <p style="font-weight: bold; margin: 5px 0; font-size: 12px;">{achievement['name']}</p>
                 <p style="font-size: 10px; color: #ccc; margin: 0;">{achievement['desc']}</p>
+                <p style="font-size: 9px; color: #00ff87; margin: 5px 0;">+{achievement['points']} pts</p>
             </div>
             """, unsafe_allow_html=True)
 
@@ -419,11 +496,11 @@ def create_analytics_dashboard():
     avg_stress = np.mean(stress_data[-7:])  # Last 7 days
     insight = ""
     if avg_stress < 0.4:
-        insight = "🎉 Excellent! Your stress levels are well managed."
+        insight = "🎉 Excellent! Your stress levels are well managed. Keep up the good work!"
     elif avg_stress < 0.6:
-        insight = "👍 Good job! You're maintaining healthy stress levels."
+        insight = "👍 Good job! You're maintaining healthy stress levels. Consider preventive measures."
     else:
-        insight = "💡 Consider using our problem solver for stress relief techniques."
+        insight = "💡 Your stress levels are elevated. Use our problem solver for effective relief techniques."
     
     st.info(insight)
 
@@ -484,11 +561,11 @@ def main():
                 st.markdown(f"""
                 <div class="glass-card" style="margin: 10px 0; padding: 15px;">
                     <div style="display: flex; justify-content: space-between; align-items: start;">
-                        <div>
-                            <strong>{log['problem']}</strong>
-                            <p style="margin: 5px 0; color: #ccc; font-size: 14px;">{log['solution'][:100]}...</p>
+                        <div style="flex: 1;">
+                            <strong>🎯 {log['problem']}</strong>
+                            <p style="margin: 5px 0; color: #ccc; font-size: 14px;">{log['solution'][:120]}...</p>
                         </div>
-                        <span style="color: #aaa; font-size: 12px;">{log['timestamp'].strftime('%H:%M')}</span>
+                        <span style="color: #aaa; font-size: 12px; white-space: nowrap;">{log['timestamp'].strftime('%H:%M')}</span>
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
@@ -499,12 +576,14 @@ def main():
         
         # Quick stress check
         st.markdown("### 😊 Quick Check-in")
-        mood = st.selectbox("How are you feeling?", ["😊 Great", "😐 Okay", "😟 Stressed", "😴 Tired", "🔥 Energized"])
+        mood = st.selectbox("How are you feeling right now?", 
+                           ["😊 Great", "🙂 Good", "😐 Okay", "😟 Stressed", "😴 Tired", "🔥 Energized", "😔 Down"],
+                           key="mood_select")
         
-        if st.button("Update Mood", use_container_width=True):
+        if st.button("Update My Mood", use_container_width=True, key="mood_update"):
             st.session_state.user_data['mood'] = mood
             st.session_state.user_data['wellness_points'] += 10
-            st.success("Mood updated! +10 points")
+            st.success("🎉 Mood updated! +10 Wellness Points")
             
             st.markdown("""
             <script>
@@ -519,8 +598,10 @@ def main():
     # Footer
     st.markdown("---")
     st.markdown(
-        "<div style='text-align: center; color: #666; font-size: 12px;'>"
-        "🧠 EngCare AI Wellness Platform • Your mental health matters • Confidential & Secure"
+        "<div style='text-align: center; color: #666; font-size: 12px; padding: 20px;'>"
+        "🧠 <strong>EngCare AI Wellness Platform</strong> • Your mental health matters • Confidential & Secure • "
+        "<a href='#' style='color: #667eea;'>Privacy Policy</a> • "
+        "<a href='#' style='color: #667eea;'>Terms of Service</a>"
         "</div>",
         unsafe_allow_html=True
     )

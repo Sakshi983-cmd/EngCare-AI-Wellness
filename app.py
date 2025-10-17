@@ -1,117 +1,105 @@
 import streamlit as st
-import json
-import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
 from datetime import datetime, timedelta
 import time
-import requests
-import numpy as np
-from typing import Dict, List, Optional
 import random
-import sys
-import os
 
-# Add backend to path
-sys.path.append(os.path.join(os.path.dirname(__file__), 'backend'))
+# Mock AI Services
+class StressAnalyzer:
+    def analyze_stress(self, text):
+        stress_level = random.uniform(0.1, 0.8)
+        return {
+            "stress_level": stress_level,
+            "confidence": 0.85,
+            "level": "Low" if stress_level < 0.4 else "Moderate" if stress_level < 0.7 else "High",
+            "recommendations": [
+                "Take a 5-minute break",
+                "Practice deep breathing",
+                "Listen to calming music"
+            ]
+        }
 
-# Import backend services
-try:
-    from stress_analyzer import StressAnalyzer
-    from llm_engine import LLMEngine
-except ImportError:
-    # Fallback mock classes if imports fail
-    class StressAnalyzer:
-        def analyze_stress(self, text):
-            stress_level = random.uniform(0.1, 0.8)
-            return {
-                "stress_level": stress_level,
-                "confidence": 0.85,
-                "level": "Low" if stress_level < 0.4 else "Moderate" if stress_level < 0.7 else "High",
-                "recommendations": [
-                    "Take a 5-minute break",
-                    "Practice deep breathing",
-                    "Listen to calming music"
-                ]
-            }
-    
-    class LLMEngine:
-        def get_wellness_advice(self, problem):
-            solutions = {
-                "stress": "Try the 4-7-8 breathing technique: Inhale for 4 seconds, hold for 7, exhale for 8. Repeat 4 times.",
-                "burnout": "Take a complete digital detox for 2 hours. No screens, just relaxation and nature.",
-                "anxiety": "Practice grounding technique: Name 5 things you can see, 4 you can touch, 3 you can hear, 2 you can smell, 1 you can taste.",
-                "focus": "Use the Pomodoro technique: 25 minutes focused work, 5 minutes break. Repeat 4 times then take a longer break.",
-                "sleep": "Avoid screens 1 hour before bed. Try reading a physical book and drinking herbal tea.",
-                "workload": "Break tasks into smaller chunks and prioritize using Eisenhower Matrix (Urgent/Important).",
-                "team conflicts": "Schedule a calm conversation using 'I feel' statements instead of accusations.",
-                "work-life balance": "Set clear boundaries: no work emails after 6 PM, dedicate time for hobbies.",
-                "motivation": "Start with the easiest task to build momentum. Celebrate small wins.",
-                "time management": "Use time blocking: assign specific hours for specific tasks throughout the day."
-            }
-            return solutions.get(problem.lower(), "Take a short walk and practice mindfulness meditation.")
+class LLMEngine:
+    def get_wellness_advice(self, problem):
+        solutions = {
+            "stress": "Try the 4-7-8 breathing technique: Inhale for 4 seconds, hold for 7, exhale for 8. Repeat 4 times.",
+            "burnout": "Take a complete digital detox for 2 hours. No screens, just relaxation and nature.",
+            "anxiety": "Practice grounding technique: Name 5 things you can see, 4 you can touch, 3 you can hear, 2 you can smell, 1 you can taste.",
+            "focus": "Use the Pomodoro technique: 25 minutes focused work, 5 minutes break. Repeat 4 times then take a longer break.",
+            "sleep": "Avoid screens 1 hour before bed. Try reading a physical book and drinking herbal tea.",
+            "workload": "Break tasks into smaller chunks and prioritize using Eisenhower Matrix (Urgent/Important).",
+            "team conflicts": "Schedule a calm conversation using 'I feel' statements instead of accusations.",
+            "work-life balance": "Set clear boundaries: no work emails after 6 PM, dedicate time for hobbies.",
+            "motivation": "Start with the easiest task to build momentum. Celebrate small wins.",
+            "time management": "Use time blocking: assign specific hours for specific tasks throughout the day."
+        }
+        return solutions.get(problem.lower(), "Take a short walk and practice mindfulness meditation.")
 
-# Custom CSS and JS loader
+# Custom CSS
 def load_custom_assets():
-    # Load CSS
-    try:
-        with open('assets/css/custom.css', 'r') as f:
-            st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
-    except:
-        st.markdown("""
-        <style>
-        .main { 
-            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%); 
-            color: white; 
-            font-family: 'Inter', sans-serif;
-        }
-        .glass-card { 
-            background: rgba(26,26,46,0.7); 
-            backdrop-filter: blur(20px); 
-            border-radius: 20px; 
-            padding: 20px; 
-            margin: 10px 0; 
-            border: 1px solid rgba(255,255,255,0.1);
-            transition: all 0.3s ease;
-        }
-        .glass-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
-        }
-        .stButton button { 
-            background: linear-gradient(135deg, #667eea, #764ba2); 
-            color: white; 
-            border: none; 
-            border-radius: 10px; 
-            padding: 10px 20px;
-            font-weight: bold;
-            transition: all 0.3s ease;
-        }
-        .stButton button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-        .stress-meter {
-            width: 100%;
-            height: 20px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
-            overflow: hidden;
-            margin: 10px 0;
-        }
-        .stress-level {
-            height: 100%;
-            border-radius: 10px;
-            transition: all 0.5s ease;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.8; }
-            100% { opacity: 1; }
-        }
-        </style>
-        """, unsafe_allow_html=True)
+    st.markdown("""
+    <style>
+    .main { 
+        background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%); 
+        color: white; 
+        font-family: 'Inter', sans-serif;
+    }
+    .glass-card { 
+        background: rgba(26,26,46,0.7); 
+        backdrop-filter: blur(20px); 
+        border-radius: 20px; 
+        padding: 20px; 
+        margin: 10px 0; 
+        border: 1px solid rgba(255,255,255,0.1);
+        transition: all 0.3s ease;
+    }
+    .glass-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+    .stButton button { 
+        background: linear-gradient(135deg, #667eea, #764ba2); 
+        color: white; 
+        border: none; 
+        border-radius: 10px; 
+        padding: 10px 20px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+    .stButton button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+    .stress-meter {
+        width: 100%;
+        height: 20px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 10px;
+        overflow: hidden;
+        margin: 10px 0;
+    }
+    .stress-level {
+        height: 100%;
+        border-radius: 10px;
+        transition: all 0.5s ease;
+        animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.8; }
+        100% { opacity: 1; }
+    }
+    .metric-card {
+        background: rgba(26,26,46,0.7);
+        backdrop-filter: blur(20px);
+        border-radius: 15px;
+        padding: 20px;
+        text-align: center;
+        border: 1px solid rgba(255,255,255,0.1);
+        margin: 5px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
     
     # Load particles.js and confetti from CDN
     st.markdown('''
@@ -146,16 +134,9 @@ def initialize_session_state():
             'mood': 'calm'
         },
         'problem_log': [],
-        'solutions_given': [],
-        'chat_history': [],
         'last_stress_update': datetime.now(),
         'ai_engine': LLMEngine(),
         'stress_analyzer': StressAnalyzer(),
-        'real_time_data': {
-            'stress_trend': [],
-            'productivity': [],
-            'mood_changes': []
-        }
     }
     
     for key, value in defaults.items():
@@ -226,7 +207,7 @@ def create_problem_solver():
             
             # Show solution in a beautiful card
             st.markdown(f"""
-            <div class="glass-card" style="border-left: 4px solid #00ff87; animation: fadeIn 1s ease-in;">
+            <div class="glass-card" style="border-left: 4px solid #00ff87;">
                 <h4>💡 AI Solution for '{selected_problem}'</h4>
                 <div style="background: rgba(0,255,135,0.1); padding: 15px; border-radius: 10px; margin: 10px 0;">
                     <p style="font-size: 16px; line-height: 1.6; margin: 0;">{solution}</p>
@@ -255,12 +236,6 @@ def create_problem_solver():
                 origin: { y: 0.6 }
             });
             </script>
-            <style>
-            @keyframes fadeIn {
-                from { opacity: 0; transform: translateY(20px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
-            </style>
             """, unsafe_allow_html=True)
             
             st.success("✅ Solution applied! Stress reduced by 15%. +25 Wellness Points")
@@ -276,7 +251,7 @@ def create_emergency_support():
             with st.spinner("Loading immediate relief techniques..."):
                 time.sleep(1)
                 st.markdown("""
-                <div class="glass-card" style="border-left: 4px solid #ff4757; animation: pulse 2s infinite;">
+                <div class="glass-card" style="border-left: 4px solid #ff4757;">
                     <h4>🚑 Immediate Stress Relief Techniques</h4>
                     <div style="background: rgba(255,71,87,0.1); padding: 15px; border-radius: 10px;">
                         <ol style="line-height: 1.8; margin: 0;">
@@ -320,7 +295,7 @@ def create_wellness_dashboard():
     
     with col1:
         st.markdown(f"""
-        <div class="glass-card" style="text-align: center;">
+        <div class="metric-card">
             <h3>⭐ Level</h3>
             <h1 style="color: #667eea; margin: 0; font-size: 2.5em;">{st.session_state.user_data['level']}</h1>
             <p style="color: #ccc; margin: 0;">Wellness Warrior</p>
@@ -329,7 +304,7 @@ def create_wellness_dashboard():
     
     with col2:
         st.markdown(f"""
-        <div class="glass-card" style="text-align: center;">
+        <div class="metric-card">
             <h3>🔥 Streak</h3>
             <h1 style="color: #ff9966; margin: 0; font-size: 2.5em;">{st.session_state.user_data['streak']}</h1>
             <p style="color: #ccc; margin: 0;">Days Active</p>
@@ -338,7 +313,7 @@ def create_wellness_dashboard():
     
     with col3:
         st.markdown(f"""
-        <div class="glass-card" style="text-align: center;">
+        <div class="metric-card">
             <h3>🏆 Points</h3>
             <h1 style="color: #00ff87; margin: 0; font-size: 2.5em;">{st.session_state.user_data['wellness_points']}</h1>
             <p style="color: #ccc; margin: 0;">Wellness Points</p>
@@ -350,7 +325,7 @@ def create_wellness_dashboard():
         risk_color = "#00ff87" if burnout_risk < 0.3 else "#ff9966" if burnout_risk < 0.6 else "#ff4757"
         risk_text = "Low" if burnout_risk < 0.3 else "Medium" if burnout_risk < 0.6 else "High"
         st.markdown(f"""
-        <div class="glass-card" style="text-align: center;">
+        <div class="metric-card">
             <h3>🔮 Burnout Risk</h3>
             <h1 style="color: {risk_color}; margin: 0; font-size: 2.5em;">{burnout_risk * 100:.0f}%</h1>
             <p style="color: #ccc; margin: 0;">{risk_text} Risk</p>
@@ -450,54 +425,51 @@ def create_gamification_section():
             </div>
             """, unsafe_allow_html=True)
 
-def create_analytics_dashboard():
-    """Advanced analytics and insights"""
-    st.markdown("### 📊 Your Wellness Analytics")
+def create_analytics_section():
+    """Simple analytics without plotly"""
+    st.markdown("### 📊 Your Wellness Insights")
     
-    # Generate sample analytics data
-    dates = pd.date_range(start=datetime.now() - timedelta(days=30), end=datetime.now(), freq='D')
-    stress_data = [max(0.1, min(0.9, 0.5 + 0.3 * np.sin(i/3) + random.uniform(-0.2, 0.2))) for i in range(len(dates))]
-    productivity_data = [1 - stress + random.uniform(-0.1, 0.1) for stress in stress_data]
+    # Simple progress bars for analytics
+    st.markdown("""
+    <div class="glass-card">
+        <h4>📈 This Week's Progress</h4>
+        <div style="margin: 15px 0;">
+            <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+                <span>Stress Management</span>
+                <span>75%</span>
+            </div>
+            <div style="width: 100%; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden;">
+                <div style="width: 75%; background: linear-gradient(90deg, #00ff87, #60efff); height: 8px; border-radius: 10px;"></div>
+            </div>
+        </div>
+        
+        <div style="margin: 15px 0;">
+            <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+                <span>Productivity</span>
+                <span>82%</span>
+            </div>
+            <div style="width: 100%; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden;">
+                <div style="width: 82%; background: linear-gradient(90deg, #667eea, #764ba2); height: 8px; border-radius: 10px;"></div>
+            </div>
+        </div>
+        
+        <div style="margin: 15px 0;">
+            <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+                <span>Sleep Quality</span>
+                <span>68%</span>
+            </div>
+            <div style="width: 100%; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden;">
+                <div style="width: 68%; background: linear-gradient(90deg, #ff9966, #ff4757); height: 8px; border-radius: 10px;"></div>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
     
-    # Create interactive chart
-    fig = go.Figure()
-    
-    fig.add_trace(go.Scatter(
-        x=dates, y=stress_data,
-        mode='lines+markers',
-        name='Stress Level',
-        line=dict(color='#ff4757', width=3),
-        fill='tozeroy',
-        opacity=0.6
-    ))
-    
-    fig.add_trace(go.Scatter(
-        x=dates, y=productivity_data,
-        mode='lines+markers',
-        name='Productivity',
-        line=dict(color='#00ff87', width=3),
-        fill='tozeroy',
-        opacity=0.6
-    ))
-    
-    fig.update_layout(
-        template='plotly_dark',
-        paper_bgcolor='rgba(0,0,0,0)',
-        plot_bgcolor='rgba(0,0,0,0)',
-        font=dict(color='white'),
-        height=300,
-        showlegend=True,
-        margin=dict(l=0, r=0, t=30, b=0)
-    )
-    
-    st.plotly_chart(fig, use_container_width=True)
-    
-    # Insights
-    avg_stress = np.mean(stress_data[-7:])  # Last 7 days
-    insight = ""
-    if avg_stress < 0.4:
+    # Weekly insights
+    stress_level = st.session_state.user_data['stress_level']
+    if stress_level < 0.4:
         insight = "🎉 Excellent! Your stress levels are well managed. Keep up the good work!"
-    elif avg_stress < 0.6:
+    elif stress_level < 0.6:
         insight = "👍 Good job! You're maintaining healthy stress levels. Consider preventive measures."
     else:
         insight = "💡 Your stress levels are elevated. Use our problem solver for effective relief techniques."
@@ -552,7 +524,7 @@ def main():
     
     with col1:
         create_problem_solver()
-        create_analytics_dashboard()
+        create_analytics_section()
         
         # Problem history
         if st.session_state.problem_log:
@@ -599,12 +571,12 @@ def main():
     st.markdown("---")
     st.markdown(
         "<div style='text-align: center; color: #666; font-size: 12px; padding: 20px;'>"
-        "🧠 <strong>EngCare AI Wellness Platform</strong> • Your mental health matters • Confidential & Secure • "
-        "<a href='#' style='color: #667eea;'>Privacy Policy</a> • "
-        "<a href='#' style='color: #667eea;'>Terms of Service</a>"
+        "🧠 <strong>EngCare AI Wellness Platform</strong> • Your mental health matters • Confidential & Secure"
         "</div>",
         unsafe_allow_html=True
     )
 
 if __name__ == "__main__":
     main()
+       
+   

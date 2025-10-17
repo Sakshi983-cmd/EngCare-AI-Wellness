@@ -429,7 +429,7 @@ def create_analytics_section():
     """Simple analytics without plotly"""
     st.markdown("### 📊 Your Wellness Insights")
     
-    # Simple progress bars for analytics
+    # Simple progress bars for analytics - FIXED VERSION
     st.markdown("""
     <div class="glass-card">
         <h4>📈 This Week's Progress</h4>
@@ -464,7 +464,7 @@ def create_analytics_section():
             </div>
         </div>
     </div>
-    """, unsafe_allow_html=True)
+    """, unsafe_allow_html=True)  # <- YEH LINE ADD KARO
     
     # Weekly insights
     stress_level = st.session_state.user_data['stress_level']

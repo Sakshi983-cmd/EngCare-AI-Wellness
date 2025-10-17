@@ -433,6 +433,7 @@ def create_analytics_section():
     st.markdown("""
     <div class="glass-card">
         <h4>📈 This Week's Progress</h4>
+        
         <div style="margin: 15px 0;">
             <div style="display: flex; justify-content: space-between; margin: 10px 0;">
                 <span>Stress Management</span>

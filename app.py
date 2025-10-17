@@ -426,45 +426,35 @@ def create_gamification_section():
             """, unsafe_allow_html=True)
 
 def create_analytics_section():
-    """Simple analytics without plotly"""
+    """Simple analytics without HTML"""
     st.markdown("### 📊 Your Wellness Insights")
     
-    # Simple progress bars for analytics - FIXED VERSION
-    st.markdown("""
-    <div class="glass-card">
-        <h4>📈 This Week's Progress</h4>
+    with st.container():
+        st.markdown("#### 📈 This Week's Progress")
         
-        <div style="margin: 15px 0;">
-            <div style="display: flex; justify-content: space-between; margin: 10px 0;">
-                <span>Stress Management</span>
-                <span>75%</span>
-            </div>
-            <div style="width: 100%; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden;">
-                <div style="width: 75%; background: linear-gradient(90deg, #00ff87, #60efff); height: 8px; border-radius: 10px;"></div>
-            </div>
-        </div>
+        # Stress Management
+        col1, col2 = st.columns([3, 1])
+        with col1:
+            st.write("Stress Management")
+        with col2:
+            st.write("75%")
+        st.progress(75)
         
-        <div style="margin: 15px 0;">
-            <div style="display: flex; justify-content: space-between; margin: 10px 0;">
-                <span>Productivity</span>
-                <span>82%</span>
-            </div>
-            <div style="width: 100%; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden;">
-                <div style="width: 82%; background: linear-gradient(90deg, #667eea, #764ba2); height: 8px; border-radius: 10px;"></div>
-            </div>
-        </div>
+        # Productivity
+        col1, col2 = st.columns([3, 1])
+        with col1:
+            st.write("Productivity")
+        with col2:
+            st.write("82%")
+        st.progress(82)
         
-        <div style="margin: 15px 0;">
-            <div style="display: flex; justify-content: space-between; margin: 10px 0;">
-                <span>Sleep Quality</span>
-                <span>68%</span>
-            </div>
-            <div style="width: 100%; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden;">
-                <div style="width: 68%; background: linear-gradient(90deg, #ff9966, #ff4757); height: 8px; border-radius: 10px;"></div>
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)  # <- YEH LINE ADD KARO
+        # Sleep Quality
+        col1, col2 = st.columns([3, 1])
+        with col1:
+            st.write("Sleep Quality")
+        with col2:
+            st.write("68%")
+        st.progress(68)
     
     # Weekly insights
     stress_level = st.session_state.user_data['stress_level']
@@ -476,7 +466,6 @@ def create_analytics_section():
         insight = "💡 Your stress levels are elevated. Use our problem solver for effective relief techniques."
     
     st.info(insight)
-
 def simulate_real_time_updates():
     """Simulate real-time data updates"""
     current_time = datetime.now()

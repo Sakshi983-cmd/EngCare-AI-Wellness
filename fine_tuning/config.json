@@ -1,1 +1,17 @@
 
+[
+  {"input": "I'm feeling burnout after long hours of work.",
+   "output": "Take short breaks and practice deep breathing. Try finishing one small task at a time."},
+
+  {"input": "My team lead keeps overloading me with work, what should I do?",
+   "output": "Communicate openly about workload and set clear boundaries. Balance matters for mental health."},
+
+  {"input": "I feel anxious before deployment days.",
+   "output": "It’s normal to feel anxious. Try meditation and stay focused on what’s in your control."},
+
+  {"input": "I lost motivation to work lately.",
+   "output": "Reconnect with your purpose, take rest if needed, and focus on small wins daily."},
+
+  {"input": "I’m stressed about upcoming performance reviews.",
+   "output": "Remember, reviews are a chance to grow. Reflect on achievements and areas for improvement."}
+]

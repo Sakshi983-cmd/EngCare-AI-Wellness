@@ -1,23 +1,33 @@
-import json
-from transformers import AutoTokenizer, AutoModelForCausalLM, Trainer, TrainingArguments
 
-# Step 1: Load Config
+from peft import get_peft_model, LoraConfig, TaskType
+from transformers import AutoModelForCausalLM, AutoTokenizer, Trainer, TrainingArguments
+import json
+
+# Load config and dataset
 with open("fine_tuning/config.json") as f:
     config = json.load(f)
-
-# Step 2: Load Dataset
 with open("fine_tuning/dataset.json") as f:
     data = json.load(f)
 
 inputs = [item["input"] for item in data]
 outputs = [item["output"] for item in data]
 
-# Step 3: Load Model & Tokenizer
-model_name = config["model_name"]
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForCausalLM.from_pretrained(model_name)
+# Tokenizer and base model
+tokenizer = AutoTokenizer.from_pretrained(config["model_name"])
+base_model = AutoModelForCausalLM.from_pretrained(config["model_name"])
 
-# Step 4: Prepare Dataset
+# Apply LoRA
+lora_config = LoraConfig(
+    r=8,
+    lora_alpha=32,
+    target_modules=["c_attn"],  # GPT2-specific; adjust for other models
+    lora_dropout=0.1,
+    bias="none",
+    task_type=TaskType.CAUSAL_LM
+)
+model = get_peft_model(base_model, lora_config)
+
+# Tokenize
 input_encodings = tokenizer(inputs, truncation=True, padding=True)
 output_encodings = tokenizer(outputs, truncation=True, padding=True)
 
@@ -37,7 +47,7 @@ class SimpleDataset:
 
 train_dataset = SimpleDataset(input_encodings, output_encodings)
 
-# Step 5: Training Config
+# Training
 args = TrainingArguments(
     output_dir=config["save_dir"],
     per_device_train_batch_size=config["batch_size"],
@@ -46,17 +56,13 @@ args = TrainingArguments(
     save_total_limit=1
 )
 
-# Step 6: Trainer Setup
 trainer = Trainer(
     model=model,
     args=args,
-    train_dataset=train_dataset
+    train_dataset=train_dataset,
+    tokenizer=tokenizer
 )
 
-# Step 7: Train & Save
 trainer.train()
 model.save_pretrained(config["save_dir"])
 tokenizer.save_pretrained(config["save_dir"])
-
-print("✅ Fine-tuning completed! Model saved at:", config["save_dir"])
-

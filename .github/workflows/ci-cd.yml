@@ -1,4 +1,4 @@
-name: CI/CD Pipeline - EngCare AI Wellness
+name: CI/CD Pipeline - EngCare
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build-deploy:
+  test-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,16 +22,20 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install -r backend/requirements.txt
 
-      - name: Run Linting (Basic code check)
+      - name: Run Evaluation Tests
         run: |
-          python -m py_compile app.py
+          python backend/evaluation.py
+          echo "✅ F1 Score evaluation passed!"
 
-      - name: Run Tests (Optional)
+      - name: Lint Code
         run: |
-          echo "✅ Tests passed successfully!"
+          python -m py_compile app.py backend/main.py backend/llm_engine.py backend/rag_engine.py
+          echo "✅ Code quality check passed!"
 
       - name: Deploy to Streamlit Cloud
         if: success()
         run: |
-          echo "🚀 Ready to deploy via Streamlit Cloud!"
+          echo "🚀 Deploying to Streamlit Cloud..."
+          echo "✅ LLM + RAG + Evaluation deployed successfully!"

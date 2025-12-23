@@ -102,7 +102,7 @@ graph LR
 
 
 
-    graph LR
+graph LR
     A["🌐 Streamlit UI<br/>User Inputs: Mood, Hours, Stress"] -->|API Calls| B["⚡ FastAPI Backend<br/>Async Routing"]
     B --> D["🧠 DialoGPT-medium LLM<br/>+ RAG/FAISS<br/>(Transformers + Torch)"]
     B --> F["🔍 RAG Pipeline<br/>FAISS Index + Embeddings<br/>(Sentence-Transformers)"]

@@ -84,19 +84,35 @@ Engineers face relentless deadlines, imposter syndrome, and burnout – leading 
 
 EngCare का design **modular, resilient** है – DialoGPT + RAG/FAISS core के साथ production-ready deployment.
 
-### 1. High-Level Component Flow (Mermaid Flowchart)
-```mermaid
 graph LR
-    A[🌐 Streamlit UI<br/>User Inputs: Mood, Hours, Stress] -->|API Calls| B[⚡ FastAPI Backend<br/>Async Routing]
-    B --> D[🧠 DialoGPT-medium LLM<br/>+ RAG/FAISS<br/>(Transformers + Torch)]
-    B --> F[🔍 RAG Pipeline<br/>FAISS Index + Embeddings<br/>(Sentence-Transformers)]
-    F --> G[📂 Vector DB<br/>wellness_resources.json]
-    B --> H[🤖 ML Risk Engine<br/>Scikit RandomForest<br/>F1: 0.87]
-    H --> I[🔒 SQLite DB<br/>Encrypted, Aggregate Only]
-    D --> J[📤 Grounded Output<br/>DialoGPT Recs + Resources]
+    A["🌐 Streamlit UI<br/>User Inputs: Mood, Hours, Stress"] -->|API Calls| B["⚡ FastAPI Backend<br/>Async Routing"]
+    B --> D["🧠 DialoGPT-medium LLM<br/>+ RAG/FAISS<br/>(Transformers + Torch)"]
+    B --> F["🔍 RAG Pipeline<br/>FAISS Index + Embeddings<br/>(Sentence-Transformers)"]
+    F --> G["📂 Vector DB<br/>wellness_resources.json"]
+    B --> H["🤖 ML Risk Engine<br/>Scikit RandomForest<br/>F1: 0.87"]
+    H --> I["🔒 SQLite DB<br/>Encrypted, Aggregate Only"]
+    D --> J["📤 Grounded Output<br/>DialoGPT Recs + Resources"]
     G --> J
-    I --> K[📊 HR Dashboard<br/>Trends, ROI Calc]
-    J --> L[🎨 UI Response<br/>Animations, Alerts]
+    I --> K["📊 HR Dashboard<br/>Trends, ROI Calc"]
+    J --> L["🎨 UI Response<br/>Animations, Alerts"]
+    style A fill:#e3f2fd
+    style J fill:#c8e6c9
+    style K fill:#fff3e0
+    style D fill:#f3e5f5
+
+
+
+    graph LR
+    A["🌐 Streamlit UI<br/>User Inputs: Mood, Hours, Stress"] -->|API Calls| B["⚡ FastAPI Backend<br/>Async Routing"]
+    B --> D["🧠 DialoGPT-medium LLM<br/>+ RAG/FAISS<br/>(Transformers + Torch)"]
+    B --> F["🔍 RAG Pipeline<br/>FAISS Index + Embeddings<br/>(Sentence-Transformers)"]
+    F --> G["📂 Vector DB<br/>wellness_resources.json"]
+    B --> H["🤖 ML Risk Engine<br/>Scikit RandomForest<br/>F1: 0.87"]
+    H --> I["🔒 SQLite DB<br/>Encrypted, Aggregate Only"]
+    D --> J["📤 Grounded Output<br/>DialoGPT Recs + Resources"]
+    G --> J
+    I --> K["📊 HR Dashboard<br/>Trends, ROI Calc"]
+    J --> L["🎨 UI Response<br/>Animations, Alerts"]
     style A fill:#e3f2fd
     style J fill:#c8e6c9
     style K fill:#fff3e0

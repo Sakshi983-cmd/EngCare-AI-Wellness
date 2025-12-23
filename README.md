@@ -100,23 +100,3 @@ graph LR
     style J fill:#c8e6c9
     style K fill:#fff3e0
     style D fill:#f3e5f5
-
-sequenceDiagram
-    participant U as User (Streamlit)
-    participant B as Backend (FastAPI)
-    participant L as DialoGPT + RAG/FAISS
-    participant M as ML Classifier
-    participant D as DB (SQLite)
-
-    U->>B: POST /chat {stress:8, hours:12}
-    B->>M: Predict Risk (RandomForest)
-    M-->>B: Score: High (0.87 F1)
-    alt High Risk
-        B->>D: Log Alert (Anon)
-        B->>U: 🚨 Crisis Protocol
-    else Normal
-        B->>L: Query RAG/FAISS → DialoGPT Prompt
-        L-->>B: LLM-Powered Recs (Grounded)
-        B->>D: Update Mood Log
-    end
-    B-->>U: Render Advice + Viz

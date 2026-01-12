@@ -83,6 +83,8 @@ Engineers face relentless deadlines, imposter syndrome, and burnout – leading 
 
 EngCare का design **modular, resilient** है – DialoGPT + RAG/FAISS core के साथ production-ready deployment.
 
+
+
 ### 1. High-Level Component Flow (Mermaid Flowchart)
 ```mermaid
 graph LR

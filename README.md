@@ -81,7 +81,7 @@ Engineers face relentless deadlines, imposter syndrome, and burnout – leading 
 
 ## 🏗️ Mind-Blowing System Architecture
 
-EngCare का design **modular, resilient** है – DialoGPT + RAG/FAISS core के साथ production-ready deployment.
+EngCare का design **modular, resilient** है – DialoGPT + RAG/FAISS core ( production-ready deployment.)
 
 
 

@@ -100,26 +100,6 @@ def load_custom_assets():
     }
     </style>
     """, unsafe_allow_html=True)
-    
-    # Load particles.js and confetti from CDN
-    st.markdown('''
-        <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-        <div id="particles-js" style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:-1;"></div>
-        <script>
-        particlesJS('particles-js', {
-            particles: {
-                number: { value: 80, density: { enable: true, value_area: 800 } },
-                color: { value: "#667eea" },
-                shape: { type: "circle" },
-                opacity: { value: 0.5, random: true },
-                size: { value: 3, random: true },
-                line_linked: { enable: true, distance: 150, color: "#764ba2", opacity: 0.4, width: 1 },
-                move: { enable: true, speed: 2, direction: "none", random: true }
-            }
-        });
-        </script>
-    ''', unsafe_allow_html=True)
 
 def initialize_session_state():
     """Initialize all session state variables"""
@@ -137,11 +117,30 @@ def initialize_session_state():
         'last_stress_update': datetime.now(),
         'ai_engine': LLMEngine(),
         'stress_analyzer': StressAnalyzer(),
+        'refresh_count': 0,
     }
     
     for key, value in defaults.items():
         if key not in st.session_state:
             st.session_state[key] = value
+
+def simulate_real_time_updates():
+    """Update stress level on every rerun"""
+    # Update stress with small random change every time
+    change = random.uniform(-0.08, 0.08)
+    st.session_state.user_data['stress_level'] = max(0.1, min(0.9,
+        st.session_state.user_data['stress_level'] + change))
+
+    # Update burnout risk based on stress
+    if st.session_state.user_data['stress_level'] > 0.6:
+        st.session_state.user_data['burnout_risk'] = min(0.9,
+            st.session_state.user_data['burnout_risk'] + 0.02)
+    else:
+        st.session_state.user_data['burnout_risk'] = max(0.1,
+            st.session_state.user_data['burnout_risk'] - 0.01)
+
+    st.session_state.last_stress_update = datetime.now()
+    st.session_state.refresh_count += 1
 
 def create_animated_stress_meter():
     """Create animated stress meter with real-time updates"""
@@ -168,7 +167,6 @@ def create_problem_solver():
     """Main problem solver interface"""
     st.markdown("### 🎯 AI Problem Solver")
     
-    # Problem categories
     problems = [
         "Work Stress & Pressure",
         "Burnout & Exhaustion", 
@@ -183,8 +181,6 @@ def create_problem_solver():
     ]
     
     selected_problem = st.selectbox("What's bothering you today?", problems, key="problem_select")
-    
-    # Additional context
     context = st.text_area("Tell me more about your situation (optional):", placeholder="Describe what's happening...", key="problem_context")
     
     if st.button("🎯 Get AI Solution", key="solve_problem", use_container_width=True):
@@ -192,11 +188,9 @@ def create_problem_solver():
             time.sleep(2)
             solution = st.session_state.ai_engine.get_wellness_advice(selected_problem)
             
-            # Enhanced solution with context
             if context:
                 solution += f"\n\nBased on your situation: {context[:100]}... I recommend being patient with yourself and implementing this solution consistently."
             
-            # Log the problem and solution
             st.session_state.problem_log.append({
                 'problem': selected_problem,
                 'solution': solution,
@@ -205,7 +199,6 @@ def create_problem_solver():
                 'context': context
             })
             
-            # Show solution in a beautiful card
             st.markdown(f"""
             <div class="glass-card" style="border-left: 4px solid #00ff87;">
                 <h4>💡 AI Solution for '{selected_problem}'</h4>
@@ -223,21 +216,8 @@ def create_problem_solver():
             </div>
             """, unsafe_allow_html=True)
             
-            # Update user metrics
             st.session_state.user_data['wellness_points'] += 25
             st.session_state.user_data['stress_level'] = max(0.1, st.session_state.user_data['stress_level'] - 0.15)
-            
-            # Show confetti for successful solution
-            st.markdown("""
-            <script>
-            confetti({
-                particleCount: 100,
-                spread: 70,
-                origin: { y: 0.6 }
-            });
-            </script>
-            """, unsafe_allow_html=True)
-            
             st.success("✅ Solution applied! Stress reduced by 15%. +25 Wellness Points")
 
 def create_emergency_support():
@@ -257,7 +237,7 @@ def create_emergency_support():
                         <ol style="line-height: 1.8; margin: 0;">
                             <li><strong>Box Breathing:</strong> Inhale 4s → Hold 4s → Exhale 4s → Hold 4s (Repeat 4x)</li>
                             <li><strong>5-4-3-2-1 Grounding:</strong> Name 5 things you see, 4 you feel, 3 you hear, 2 you smell, 1 you taste</li>
-                            <li><strong>Cold Water:</strong> Splash cold water on your face or hold ice cubes</li>
+                            <li><strong>Cold Water:</strong> Splash cold water on your face</li>
                             <li><strong>2-Minute Walk:</strong> Walk away from your desk immediately</li>
                             <li><strong>Progressive Relaxation:</strong> Tense and release muscles from toes to head</li>
                         </ol>
@@ -276,7 +256,7 @@ def create_emergency_support():
                     <p><strong>🎯 Suicide & Crisis Lifeline:</strong> Dial 988</p>
                     <p><strong>🚑 Emergency Services:</strong> 911 or your local emergency number</p>
                     <p style="margin-top: 10px; font-style: italic; color: #ccc;">
-                    You're not alone. Professional help is available 24/7. Reach out anytime.
+                    You're not alone. Professional help is available 24/7.
                     </p>
                 </div>
             </div>
@@ -287,10 +267,8 @@ def create_wellness_dashboard():
     st.title("🧠 EngCare - AI Wellness Assistant")
     st.markdown("### Your Personal Mental Health Companion")
     
-    # Real-time stress meter
     create_animated_stress_meter()
     
-    # Key metrics in columns
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
@@ -386,7 +364,6 @@ def create_gamification_section():
     """Gamification and achievements"""
     st.markdown("### 🎮 Wellness Game")
     
-    # Progress to next level
     current_points = st.session_state.user_data['wellness_points']
     next_level_points = st.session_state.user_data['level'] * 1000
     progress = min(current_points / next_level_points, 1.0)
@@ -403,7 +380,6 @@ def create_gamification_section():
     </div>
     """, unsafe_allow_html=True)
     
-    # Achievements
     st.markdown("#### 🏆 Your Achievements")
     achievements = [
         {"name": "First Step", "earned": True, "icon": "🚶", "desc": "Completed first session", "points": 50},
@@ -426,13 +402,12 @@ def create_gamification_section():
             """, unsafe_allow_html=True)
 
 def create_analytics_section():
-    """Simple analytics without HTML"""
+    """Analytics section"""
     st.markdown("### 📊 Your Wellness Insights")
     
     with st.container():
         st.markdown("#### 📈 This Week's Progress")
         
-        # Stress Management
         col1, col2 = st.columns([3, 1])
         with col1:
             st.write("Stress Management")
@@ -440,7 +415,6 @@ def create_analytics_section():
             st.write("75%")
         st.progress(75)
         
-        # Productivity
         col1, col2 = st.columns([3, 1])
         with col1:
             st.write("Productivity")
@@ -448,7 +422,6 @@ def create_analytics_section():
             st.write("82%")
         st.progress(82)
         
-        # Sleep Quality
         col1, col2 = st.columns([3, 1])
         with col1:
             st.write("Sleep Quality")
@@ -456,7 +429,6 @@ def create_analytics_section():
             st.write("68%")
         st.progress(68)
     
-    # Weekly insights
     stress_level = st.session_state.user_data['stress_level']
     if stress_level < 0.4:
         insight = "🎉 Excellent! Your stress levels are well managed. Keep up the good work!"
@@ -466,27 +438,8 @@ def create_analytics_section():
         insight = "💡 Your stress levels are elevated. Use our problem solver for effective relief techniques."
     
     st.info(insight)
-def simulate_real_time_updates():
-    """Simulate real-time data updates"""
-    current_time = datetime.now()
-    if (current_time - st.session_state.last_stress_update).seconds > 10:  # Update every 10 seconds
-        # Small random fluctuations in stress
-        change = random.uniform(-0.05, 0.05)
-        st.session_state.user_data['stress_level'] = max(0.1, min(0.9, 
-            st.session_state.user_data['stress_level'] + change))
-        
-        # Update burnout risk based on stress trend
-        if st.session_state.user_data['stress_level'] > 0.6:
-            st.session_state.user_data['burnout_risk'] = min(0.9, 
-                st.session_state.user_data['burnout_risk'] + 0.02)
-        else:
-            st.session_state.user_data['burnout_risk'] = max(0.1, 
-                st.session_state.user_data['burnout_risk'] - 0.01)
-        
-        st.session_state.last_stress_update = current_time
 
 def main():
-    # Configure page
     st.set_page_config(
         page_title="EngCare - AI Wellness Platform",
         page_icon="🧠",
@@ -494,29 +447,21 @@ def main():
         initial_sidebar_state="expanded"
     )
     
-    # Load custom assets
     load_custom_assets()
-    
-    # Initialize session state
     initialize_session_state()
-    
-    # Simulate real-time updates
+
+    # ✅ FIX: Update stress on every rerun
     simulate_real_time_updates()
     
-    # Main app layout
     create_wellness_dashboard()
-    
-    # Emergency support at the top for quick access
     create_emergency_support()
     
-    # Two column layout for main content
     col1, col2 = st.columns([2, 1])
     
     with col1:
         create_problem_solver()
         create_analytics_section()
         
-        # Problem history
         if st.session_state.problem_log:
             st.markdown("### 📝 Recent Solutions")
             for i, log in enumerate(list(reversed(st.session_state.problem_log))[-3:]):
@@ -536,7 +481,6 @@ def main():
         create_ai_recommendations()
         create_gamification_section()
         
-        # Quick stress check
         st.markdown("### 😊 Quick Check-in")
         mood = st.selectbox("How are you feeling right now?", 
                            ["😊 Great", "🙂 Good", "😐 Okay", "😟 Stressed", "😴 Tired", "🔥 Energized", "😔 Down"],
@@ -546,18 +490,7 @@ def main():
             st.session_state.user_data['mood'] = mood
             st.session_state.user_data['wellness_points'] += 10
             st.success("🎉 Mood updated! +10 Wellness Points")
-            
-            st.markdown("""
-            <script>
-            confetti({
-                particleCount: 50,
-                spread: 50,
-                origin: { y: 0.6 }
-            });
-            </script>
-            """, unsafe_allow_html=True)
 
-    # Footer
     st.markdown("---")
     st.markdown(
         "<div style='text-align: center; color: #666; font-size: 12px; padding: 20px;'>"
@@ -566,7 +499,10 @@ def main():
         unsafe_allow_html=True
     )
 
+    # ✅ FIX: Auto refresh every 3 seconds — stress level live update hoga
+    time.sleep(3)
+    st.rerun()
+
 if __name__ == "__main__":
     main()
-       
-   
+    
